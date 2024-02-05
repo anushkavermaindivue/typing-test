@@ -2,32 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+.current {
+    border-left: 1px solid;
+    animation: blinkingCursor 2s linear infinite;
+    animation-timing-function: ease;
+
+    @keyframes blinkingCursor {
+        0% {border-left-color: black}
+        25% {border-left-color: transparent}
+        50% {border-left-color: black}
+        75% {border-left-color: transparent}
+        100% {border-left-color: black}
+    }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+.current-right {
+    border-right: 1px solid;
+    animation: blinkingCursorRight 2s linear infinite;
+    animation-timing-function: ease;
+
+    @keyframes blinkingCursorRight {
+        0% {border-right-color: black}
+        25% {border-right-color: transparent}
+        50% {border-right-color: black}
+        75% {border-right-color: transparent}
+        100% {border-right-color: black};
+    }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+.correct {
+    color: green;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.wrong {
+    color: red;
 }
