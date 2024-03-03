@@ -36,7 +36,7 @@ const TypingBox = () => {
     };
 
     const calculateAccuracy = () => {
-        return Math.round((correctWords / currWordIndex) * 100);
+        return Math.round((correctWords / wordsSpanRef.length) * 100);
     };
 
     const resetWordSpanRefClassname = () => {
@@ -67,15 +67,15 @@ const TypingBox = () => {
   
       function timer() {
         setCountDown((latestCountDown) => {
-          setCorrectChars((correctChars) => {
-              setGraphData((graphData) => {
-                  return [...graphData, [
-                      testTime-latestCountDown+1,
-                      (correctChars/5)/((testTime-latestCountDown+1)/60)
-                  ]];
-              })
-              return correctChars;
-          })
+          // setCorrectChars((correctChars) => {
+          //     setGraphData((graphData) => {
+          //         return [...graphData, [
+          //             testTime-latestCountDown+1,
+          //             (correctChars/5)/((testTime-latestCountDown+1)/60)
+          //         ]];
+          //     })
+          //     return correctChars;
+          // })
           if (latestCountDown === 1) {
             setTestEnd(true);
             clearInterval(intervalId);
@@ -109,10 +109,10 @@ const TypingBox = () => {
     
         if (e.keyCode === 32) {
           let correctCharsInWords =
-            wordsSpanRef[currWordIndex].current.querySelectorAll(".current");
+            wordsSpanRef[currWordIndex].current.querySelectorAll(".correct");
     
           if (correctCharsInWords.length === allCurrChars.length) {
-            setCorrectWords(correctWords + 1);
+            setCorrectWords((prev) => prev + 1);
           }
     
           if (allCurrChars.length <= currCharIndex) {
@@ -158,6 +158,9 @@ const TypingBox = () => {
           setExtraChars(extraChars + 1);
           return;
         }
+
+        if(e.keyCode == 16) return;
+        if(e.keyCode == 20) return;
     
         if (e.key === allCurrChars[currCharIndex].innerText) {
           allCurrChars[currCharIndex].className = "correct";
@@ -179,8 +182,12 @@ const TypingBox = () => {
       
 
   return (
-    <div className='bg-[#ff9fae] h-[95vh]'>
-      <div className='words flex flex-wrap border border-black w-[80%] m-auto p-5 leading-8 text-xl'>
+    <div className='text-[#4D4D4D] h-[95vh] font-semibold mt-8 tracking-wide'>
+      <div className='bg-[#D3F1FF] p-4 pr-8 flex items-center justify-between'>
+        <h1 className='text-2xl text=[#737373]'>Typing Test</h1>
+        <h1 className='text-green-500 text-right'><span className='text-black'>Time : </span>{countDown}</h1>
+      </div>
+      <div className='words flex flex-wrap w-[80%] m-auto p-5 leading-8 text-xl mt-8'>
         {
             wordsArray.map((word, index) => (
                 <span className='word mr-2' ref={wordsSpanRef[index]}>
@@ -191,10 +198,32 @@ const TypingBox = () => {
             ))
         }
       </div>
-      {testEnd ? (<h1>Test Ended</h1>) : (
+      {testEnd ? (
+        <div className='mt-20 p-2 flex justify-around w-[70%] m-auto text-center'>
+          <div>
+            <h2 className='text-xl font-semibold text-[#A5A5A5]'>acc</h2>
+            <h1 className='text-[#188FA7] text-3xl font-bold'>{`${calculateAccuracy()} %`}</h1>
+          </div>
+          <div>
+            <h2 className='text-xl font-semibold text-[#A5A5A5]'>time</h2>
+            <h1 className='text-[#188FA7] text-3xl font-bold'>15 s</h1>
+          </div>
+          <div>
+            <h2 className='text-xl font-semibold text-[#A5A5A5]'>consistency</h2>
+            <h1 className='text-[#188FA7] text-3xl font-bold'>40%</h1>
+          </div>
+          <div>
+            <h2 className='text-xl font-semibold text-[#A5A5A5]'>wpm</h2>
+            <h1 className='text-[#188FA7] text-3xl font-bold'>{calculateWPM()}</h1>
+          </div>
+          <div>
+            <h2 className='text-xl font-semibold text-[#A5A5A5]'>characters</h2>
+            <h1 className='text-[#188FA7] text-3xl font-bold'>{`${correctChars}/${wrongChars}/${missedChars}`}</h1>
+          </div>
+        </div>
+      ) : (
         <div className=''>
-          <h1>{countDown}</h1>
-          <textarea type='text' ref={inputRef} onKeyDown={handleUserInput} className='w-[80%] ml-[10%] mt-20 p-5 outline-none h-[30vh]' />
+          <textarea type='text' ref={inputRef} onKeyDown={handleUserInput} className='underline w-[80%] ml-[10%] mt-20 p-5 outline-none h-[30vh]' />
         </div>
       )}
     </div>
