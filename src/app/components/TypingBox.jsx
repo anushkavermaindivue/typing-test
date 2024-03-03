@@ -10,13 +10,20 @@ const TypingBox = () => {
         return generate(50);
     })
 
+    const testTime = 15;
+
+    const [countDown, setCountDown] = useState(testTime);
     const [correctChars, setCorrectChars] = useState(0);
     const [wrongChars, setWrongChars] = useState(0);
     const [missedChars, setMissedChars] = useState(0);
     const [extraChars, setExtraChars] = useState(0);
     const [correctWords, setCorrectWords] = useState(0);
     const [currWordIndex, setCurrWordIndex] = useState(0);
-     const [currCharIndex, setCurrCharIndex] = useState(0);
+    const [currCharIndex, setCurrCharIndex] = useState(0);
+    const [intervalId, setIntervalId] = useState(null);
+    const [testStart, setTestStart] = useState(false);
+    const [testEnd, setTestEnd] = useState(false);
+    const [graphData, setGraphData] = useState([]);
 
     const wordsSpanRef = useMemo(() => {
         return Array(wordsArray.length)
@@ -25,7 +32,7 @@ const TypingBox = () => {
     }, [wordsArray]);
     
     const calculateWPM = () => {
-        return Math.round(correctChars / 5 / (testTime / 60));
+        return Math.round(correctChars / 5 / (15 / 60));
     };
 
     const calculateAccuracy = () => {
@@ -46,11 +53,57 @@ const TypingBox = () => {
     }
 
     useEffect(() => {
+      resetTest();
+    }, [testTime]);
+
+    useEffect(() => {
         focusInput();
         wordsSpanRef[0].current.childNodes[0].className = "current";
     }, []);
 
+    const startTimer = () => {
+      const intervalId = setInterval(timer, 1000);
+      setIntervalId(intervalId);
+  
+      function timer() {
+        setCountDown((latestCountDown) => {
+          setCorrectChars((correctChars) => {
+              setGraphData((graphData) => {
+                  return [...graphData, [
+                      testTime-latestCountDown+1,
+                      (correctChars/5)/((testTime-latestCountDown+1)/60)
+                  ]];
+              })
+              return correctChars;
+          })
+          if (latestCountDown === 1) {
+            setTestEnd(true);
+            clearInterval(intervalId);
+            return 0;
+          }
+          return latestCountDown - 1;
+        });
+      }
+    };
+  
+    const resetTest = () => {
+      clearInterval(intervalId);
+      setCountDown(testTime);
+      setCurrWordIndex(0);
+      setCurrCharIndex(0);
+      setTestStart(false);
+      setTestEnd(false);
+      setWordsArray(generate(50));
+      resetWordSpanRefClassname();
+      focusInput();
+    };
+
     const handleUserInput = (e) => {
+
+      if (!testStart) {
+        startTimer();
+        setTestStart(true);
+      }
     
         const allCurrChars = wordsSpanRef[currWordIndex].current.childNodes;
     
@@ -123,6 +176,8 @@ const TypingBox = () => {
         setCurrCharIndex(currCharIndex + 1);
       };
 
+      
+
   return (
     <div className='bg-[#ff9fae] h-[95vh]'>
       <div className='words flex flex-wrap border border-black w-[80%] m-auto p-5 leading-8 text-xl'>
@@ -136,11 +191,14 @@ const TypingBox = () => {
             ))
         }
       </div>
-      <div className=''>
-        <textarea type='text' ref={inputRef} onKeyDown={handleUserInput} className='w-[80%] ml-[10%] mt-20 p-5 outline-none h-[30vh]' />
-      </div>
+      {testEnd ? (<h1>Test Ended</h1>) : (
+        <div className=''>
+          <h1>{countDown}</h1>
+          <textarea type='text' ref={inputRef} onKeyDown={handleUserInput} className='w-[80%] ml-[10%] mt-20 p-5 outline-none h-[30vh]' />
+        </div>
+      )}
     </div>
   )
 }
 
-export default TypingBox
+export default TypingBox;
