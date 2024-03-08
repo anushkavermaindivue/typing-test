@@ -4,30 +4,14 @@
 
 .current {
     border-left: 1px solid;
-    animation: blinkingCursor 2s linear infinite;
+    animation: blinkingCursor 1.5s linear infinite;
     animation-timing-function: ease;
-
-    @keyframes blinkingCursor {
-        0% {border-left-color: black}
-        25% {border-left-color: transparent}
-        50% {border-left-color: black}
-        75% {border-left-color: transparent}
-        100% {border-left-color: black}
-    }
 }
 
 .current-right {
     border-right: 1px solid;
-    animation: blinkingCursorRight 2s linear infinite;
+    animation: blinkingCursorRight 1.5s linear infinite;
     animation-timing-function: ease;
-
-    @keyframes blinkingCursorRight {
-        0% {border-right-color: black}
-        25% {border-right-color: transparent}
-        50% {border-right-color: black}
-        75% {border-right-color: transparent}
-        100% {border-right-color: black};
-    }
 }
 
 .correct {
@@ -36,4 +20,22 @@
 
 .wrong {
     color: red;
+}
+
+.unique {
+    color : #188FA7;
+    text-decoration: underline;
+}
+/* 
+.unique::before {
+    content: "start";
+    color: red;
+} */
+
+@keyframes blinkingCursor {
+    0% {border-left-color: black}
+    25% {border-left-color: transparent}
+    50% {border-left-color: black}
+    75% {border-left-color: transparent}
+    100% {border-left-color: black}
 }

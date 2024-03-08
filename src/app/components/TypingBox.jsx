@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+import resetIcon from '/public/resetIcon.svg';
 import {generate} from 'random-words';
 import { useRef, useState, useEffect, useMemo, createRef } from 'react';
 
@@ -17,13 +19,13 @@ const TypingBox = () => {
     const [wrongChars, setWrongChars] = useState(0);
     const [missedChars, setMissedChars] = useState(0);
     const [extraChars, setExtraChars] = useState(0);
-    const [correctWords, setCorrectWords] = useState(0);
+    // const [correctWords, setCorrectWords] = useState(0);
     const [currWordIndex, setCurrWordIndex] = useState(0);
     const [currCharIndex, setCurrCharIndex] = useState(0);
     const [intervalId, setIntervalId] = useState(null);
     const [testStart, setTestStart] = useState(false);
     const [testEnd, setTestEnd] = useState(false);
-    const [graphData, setGraphData] = useState([]);
+    const [textareaVal, setTextareaVal] = useState("");
 
     const wordsSpanRef = useMemo(() => {
         return Array(wordsArray.length)
@@ -36,7 +38,8 @@ const TypingBox = () => {
     };
 
     const calculateAccuracy = () => {
-        return Math.round((correctWords / wordsSpanRef.length) * 100);
+        // return Math.round((correctWords / wordsSpanRef.length) * 100);
+        return Math.round((correctChars / (correctChars + wrongChars + missedChars)) * 100);
     };
 
     const resetWordSpanRefClassname = () => {
@@ -59,6 +62,8 @@ const TypingBox = () => {
     useEffect(() => {
         focusInput();
         wordsSpanRef[0].current.childNodes[0].className = "current";
+        const allCurrChars = wordsSpanRef[currWordIndex].current.childNodes;
+        allCurrChars[0].className = "unique";
     }, []);
 
     const startTimer = () => {
@@ -88,6 +93,7 @@ const TypingBox = () => {
   
     const resetTest = () => {
       clearInterval(intervalId);
+      setTextareaVal("");
       setCountDown(testTime);
       setCurrWordIndex(0);
       setCurrCharIndex(0);
@@ -95,10 +101,15 @@ const TypingBox = () => {
       setTestEnd(false);
       setWordsArray(generate(50));
       resetWordSpanRefClassname();
+      setCorrectChars(0);
+      setWrongChars(0);
+      // setCorrectWords(0);
+      setMissedChars(0);
       focusInput();
     };
 
     const handleUserInput = (e) => {
+
 
       if (!testStart) {
         startTimer();
@@ -106,14 +117,16 @@ const TypingBox = () => {
       }
     
         const allCurrChars = wordsSpanRef[currWordIndex].current.childNodes;
-    
+        allCurrChars[0].classList.remove("unique");
+        
         if (e.keyCode === 32) {
+          setTextareaVal(prev => prev+e.key);
           let correctCharsInWords =
             wordsSpanRef[currWordIndex].current.querySelectorAll(".correct");
     
-          if (correctCharsInWords.length === allCurrChars.length) {
-            setCorrectWords((prev) => prev + 1);
-          }
+          // if (correctCharsInWords.length === allCurrChars.length) {
+          //   setCorrectWords((prev) => prev + 1);
+          // }
     
           if (allCurrChars.length <= currCharIndex) {
             allCurrChars[currCharIndex - 1].classList.remove("current-right");
@@ -131,6 +144,7 @@ const TypingBox = () => {
     
         if (e.keyCode === 8) {
           if (currCharIndex !== 0) {
+            setTextareaVal(prev => prev.slice(0, -1));
             if (allCurrChars.length === currCharIndex) {
               if (allCurrChars[currCharIndex - 1].className.includes("extra")) {
                 allCurrChars[currCharIndex - 1].remove();
@@ -147,6 +161,7 @@ const TypingBox = () => {
           }
           return;
         }
+        setTextareaVal(prev => prev+e.key);
     
         if (currCharIndex === allCurrChars.length) {
           let newSpan = document.createElement("span");
@@ -187,7 +202,7 @@ const TypingBox = () => {
         <h1 className='text-2xl text=[#737373]'>Typing Test</h1>
         <h1 className='text-green-500 text-right'><span className='text-black'>Time : </span>{countDown}</h1>
       </div>
-      <div className='words flex flex-wrap w-[80%] m-auto p-5 leading-8 text-xl mt-8'>
+      <div className='words flex flex-wrap w-[80%] m-auto p-5 leading-8 text-xl mt-8 bg-[#F7F7F7]'>
         {
             wordsArray.map((word, index) => (
                 <span className='word mr-2' ref={wordsSpanRef[index]}>
@@ -198,6 +213,7 @@ const TypingBox = () => {
             ))
         }
       </div>
+      <div className='flex justify-center mt-5'><button onClick={resetTest}><Image width={25} src={resetIcon} /></button></div>
       {testEnd ? (
         <div className='mt-20 p-2 flex justify-around w-[70%] m-auto text-center'>
           <div>
@@ -223,7 +239,7 @@ const TypingBox = () => {
         </div>
       ) : (
         <div className=''>
-          <textarea type='text' ref={inputRef} onKeyDown={handleUserInput} className='underline w-[80%] ml-[10%] mt-20 p-5 outline-none h-[30vh]' />
+          <textarea value={textareaVal} type='text' ref={inputRef} onKeyDown={handleUserInput} className='border resize-none bg-[#F7F7F7] underline w-[80%] ml-[10%] mt-20 p-5 outline-none h-[30vh]' />
         </div>
       )}
     </div>
