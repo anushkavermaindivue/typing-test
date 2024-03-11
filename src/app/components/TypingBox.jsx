@@ -1,16 +1,17 @@
 'use client';
 
 import Image from 'next/image';
-import resetIcon from '/public/resetIcon.svg';
+import resetIcon from '/public/resetIcon.png';
+import nextIcon from '/public/nextIcon.png';
 import {generate} from 'random-words';
 import { useRef, useState, useEffect, useMemo, createRef } from 'react';
 
-const TypingBox = () => {
+const TypingBox = ({wordsArray, setWordsArray, setAudioFlag}) => {
 
     const inputRef = useRef(null);
-    const [wordsArray, setWordsArray] = useState(() => {
-        return generate(50);
-    })
+    // const [wordsArray, setWordsArray] = useState(() => {
+    //     return generate(50);
+    // })
 
     const testTime = 15;
 
@@ -90,7 +91,7 @@ const TypingBox = () => {
         });
       }
     };
-  
+
     const resetTest = () => {
       clearInterval(intervalId);
       setTextareaVal("");
@@ -118,6 +119,9 @@ const TypingBox = () => {
     
         const allCurrChars = wordsSpanRef[currWordIndex].current.childNodes;
         allCurrChars[0].classList.remove("unique");
+
+        if(e.keyCode == 16) return;
+        if(e.keyCode == 20) return;
         
         if (e.keyCode === 32) {
           setTextareaVal(prev => prev+e.key);
@@ -174,8 +178,8 @@ const TypingBox = () => {
           return;
         }
 
-        if(e.keyCode == 16) return;
-        if(e.keyCode == 20) return;
+        // if(e.keyCode == 16) return;
+        // if(e.keyCode == 20) return;
     
         if (e.key === allCurrChars[currCharIndex].innerText) {
           allCurrChars[currCharIndex].className = "correct";
@@ -192,9 +196,11 @@ const TypingBox = () => {
         }
     
         setCurrCharIndex(currCharIndex + 1);
-      };
-
+      };     
       
+      function audioTest() {
+        setAudioFlag(true);
+      }
 
   return (
     <div className='text-[#4D4D4D] h-[95vh] font-semibold mt-8 tracking-wide'>
@@ -213,7 +219,10 @@ const TypingBox = () => {
             ))
         }
       </div>
-      <div className='flex justify-center mt-5'><button onClick={resetTest}><Image width={25} src={resetIcon} /></button></div>
+      <div className='flex justify-evenly items-center mt-5 m-auto w-[40%]'>
+        <button onClick={audioTest}><Image width={35} src={nextIcon} alt='nextIcon' /> </button>
+        <button onClick={resetTest}><Image width={30} src={resetIcon} alt='resetIcon' /></button>
+      </div>
       {testEnd ? (
         <div className='mt-20 p-2 flex justify-around w-[70%] m-auto text-center'>
           <div>
